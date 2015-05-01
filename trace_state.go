@@ -99,6 +99,7 @@ func (ts *traceState) Log() {
 		strings.Repeat("=", bannerHalfLength),
 		ts.spans[0].desc,
 		strings.Repeat("=", bannerHalfLength))
+	gLogger.Printf("Start time: %v", ts.spans[0].start.Format(time.RFC3339Nano))
 	gLogger.Println()
 
 	// Find the minimum start time and maximum end time of all durations.
