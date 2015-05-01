@@ -15,11 +15,17 @@
 // Package reqtrace contains a very simple request tracing framework.
 package reqtrace
 
-import "golang.org/x/net/context"
+import (
+	"flag"
 
-// The key used to associate a *traceState with a context.
+	"golang.org/x/net/context"
+)
+
 type contextKey int
 
+var fEnabled = flag.Bool("reqtrace.enable", false, "Collect and print traces.")
+
+// The key used to associate a *traceState with a context.
 const traceStateKey contextKey = 0
 
 // A function that must be called exactly once to report the outcome of an
@@ -31,8 +37,7 @@ type ReportFunc func(error)
 //
 // REQUIRES: flag.Parsed()
 func Enabled() (enabled bool) {
-	// TODO(jacobsa): Make this flag-controlled.
-	enabled = true
+	enabled = *fEnabled
 	return
 }
 
@@ -96,6 +101,13 @@ func StartSpanWithError(
 func Trace(
 	parent context.Context,
 	desc string) (ctx context.Context, report ReportFunc) {
+	// If tracing is disabled, this is a no-op.
+	if !*fEnabled {
+		ctx = parent
+		report = func(err error) {}
+		return
+	}
+
 	// Is this context already being traced? If so, simply add a span.
 	if parent.Value(traceStateKey) != nil {
 		ctx, report = StartSpan(parent, desc)
