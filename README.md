@@ -24,26 +24,30 @@ to inform reqtrace when the trace is complete.
 
 For example:
 
-    func HandleRequest(r *someRequest) (err error) {
-      ctx, report := reqtrace.Trace(context.Background(), "HandleRequest")
-      defer func() { report(err) }()
+```Go
+func HandleRequest(r *someRequest) (err error) {
+  ctx, report := reqtrace.Trace(context.Background(), "HandleRequest")
+  defer func() { report(err) }()
 
-      // Do two things for this request.
-      DoSomething(ctx, r)
-      DoSomethingElse(ctx, r)
-    }
+  // Do two things for this request.
+  DoSomething(ctx, r)
+  DoSomethingElse(ctx, r)
+}
+```
 
 Within other functions that you want to show up in the trace, you
 reqtrace.StartSpan (or its more convenient sibling reqtrace.StartSpanWithError):
 
-    func DoSomething(ctx context.Context, r *someRequest) (err error) {
-      defer reqtrace.StartSpanWithError(&ctx, &err, "DoSomething")()
+```Go
+func DoSomething(ctx context.Context, r *someRequest) (err error) {
+  defer reqtrace.StartSpanWithError(&ctx, &err, "DoSomething")()
 
-      // Process the request somehow using ctx. If downstream code also annotes
-      // using reqtrace, reqtrace will know that its spans are descendants of
-      // this one.
-      CallAnotherLibrary(ctx, r.Param)
-    }
+  // Process the request somehow using ctx. If downstream code also annotes
+  // using reqtrace, reqtrace will know that its spans are descendants of
+  // this one.
+  CallAnotherLibrary(ctx, r.Param)
+}
+```
 
 When `--reqtrace.enable` is set, the completion of a trace will cause helpful
 ASCII art to be spit out.
