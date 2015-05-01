@@ -17,14 +17,15 @@ package reqtrace
 import (
 	"log"
 	"math"
+	"os"
 	"strings"
 	"sync"
 	"time"
 )
 
-func init() {
-	log.SetFlags(0)
-}
+const logFlags = 0
+
+var gLogger = log.New(os.Stderr, "reqtrace: ", logFlags)
 
 type span struct {
 	// Fixed at creation.
@@ -82,11 +83,11 @@ func round(x float64) float64 {
 func (ts *traceState) Log() {
 	ts.mu.Lock()
 	defer ts.mu.Unlock()
-	log.Println()
+	gLogger.Println()
 
 	// Special case: we require at least one span.
 	if len(ts.spans) == 0 {
-		log.Println("(No spans)")
+		gLogger.Println("(No spans)")
 		return
 	}
 
@@ -112,7 +113,7 @@ func (ts *traceState) Log() {
 	// TODO(jacobsa): Be more graceful.
 	totalDuration := maxEnd.Sub(minStart)
 	if minStart.IsZero() || maxEnd.IsZero() || totalDuration <= 0 {
-		log.Println("(Weird trace)")
+		gLogger.Println("(Weird trace)")
 		return
 	}
 
@@ -124,8 +125,8 @@ func (ts *traceState) Log() {
 	const totalNumCols float64 = 120
 	for _, s := range ts.spans {
 		if !s.finished {
-			log.Println("(Unfinished)")
-			log.Println()
+			gLogger.Println("(Unfinished)")
+			gLogger.Println()
 			continue
 		}
 
@@ -133,8 +134,8 @@ func (ts *traceState) Log() {
 		// longest span.
 		d := s.end.Sub(s.start)
 		if d <= 0 {
-			log.Println("(Weird duration)")
-			log.Println()
+			gLogger.Println("(Weird duration)")
+			gLogger.Println()
 			continue
 		}
 
@@ -147,8 +148,8 @@ func (ts *traceState) Log() {
 		offsetStr := strings.Repeat(" ", offsetChars)
 
 		// Print the description and duration.
-		log.Printf("%s%v", offsetStr, s.desc)
-		log.Printf("%s%v", offsetStr, d)
+		gLogger.Printf("%s%v", offsetStr, s.desc)
+		gLogger.Printf("%s%v", offsetStr, d)
 
 		// Print a banner showing the duration graphically.
 		bannerChars := int(round(durationRatio * totalNumCols))
@@ -157,7 +158,7 @@ func (ts *traceState) Log() {
 			dashes = strings.Repeat("-", bannerChars-2)
 		}
 
-		log.Printf("%s|%s|", offsetStr, dashes)
-		log.Println()
+		gLogger.Printf("%s|%s|", offsetStr, dashes)
+		gLogger.Println()
 	}
 }
