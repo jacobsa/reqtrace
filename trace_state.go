@@ -87,9 +87,19 @@ func (ts *traceState) Log() {
 
 	// Special case: we require at least one span.
 	if len(ts.spans) == 0 {
-		gLogger.Println("(No spans)")
 		return
 	}
+
+	// Print a banner for this trace.
+	const bannerHalfLength = 45
+
+	gLogger.Println()
+	gLogger.Printf(
+		"%s %s %s",
+		strings.Repeat("=", bannerHalfLength),
+		ts.spans[0].desc,
+		strings.Repeat("=", bannerHalfLength))
+	gLogger.Println()
 
 	// Find the minimum start time and maximum end time of all durations.
 	var minStart time.Time
