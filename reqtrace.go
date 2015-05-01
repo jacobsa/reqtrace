@@ -55,6 +55,7 @@ func StartSpan(
 	val := parent.Value(traceStateKey)
 	if val == nil {
 		// Nothing to do.
+		ctx = parent
 		report = func(err error) {}
 		return
 	}
