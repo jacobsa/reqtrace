@@ -7,6 +7,8 @@ user except:
  *  They must add a single line to each function they want to be visible in
     traces.
 
+[context]: http://godoc.org/golang.org/x/net/context
+
 In particular, reqtrace is console-based and doesn't require an HTTP server.
 
 **Warning**: This package is still barebones and in its early days. I reserve
