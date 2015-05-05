@@ -136,7 +136,7 @@ func (ts *traceState) Log() {
 	const totalNumCols float64 = 120
 	for _, s := range ts.spans {
 		if !s.finished {
-			gLogger.Println("(Unfinished)")
+			gLogger.Printf("(Unfinished: %s)", s.desc)
 			gLogger.Println()
 			continue
 		}
